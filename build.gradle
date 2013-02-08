@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2013. Transparent Language.  All rights reserved.
+ */
+
+import org.kurron.gradle.XjcTask
+
+description = 'JAXB annotated classes generated from the B4X container schema.'
+
+if ( stageOne )
+{
+    logger.quiet 'Setting up stage one tasks'
+    apply plugin: 'groovy'
+
+    task downloadB4XSchemaFiles {
+        def File outputDirectory = sourceSets.main.java.srcDirs.toArray()[0]
+        def File schemaDirectory = sourceSets.main.resources.srcDirs.toArray()[0]
+        def File B4XSchemaFile = new File( schemaDirectory, "RR5_wordlist_MVP.xsd" )
+        def File B4XEnumSchemaFile = new File( schemaDirectory, "byki_enums.xsd" )
+
+        outputs.dir schemaDirectory
+
+        ant.mkdir(dir:schemaDirectory )
+        ant.get(src:"http://192.168.100.134/schema/byki/RR5_wordlist_MVP/2", dest:B4XSchemaFile )
+        ant.get(src:"http://192.168.100.134/schema/byki/byki_enums/2", dest:B4XEnumSchemaFile )
+    }
+
+    task xjc( type: XjcTask, dependsOn: downloadB4XSchemaFiles ) {
+        packageName = 'com.transparent.symphone.domain.b4x'
+        schemaFile = 'RR5_wordlist_MVP.xsd'
+    }
+
+    // generated classes so we won't write unit tests for them
+    ext.coverageExcludes = ["**/com/transparent/symphone/domain/b4x/*.class"]
+
+    // make sure to call the xjc prior to compiling
+    compileJava.dependsOn( xjc )
+}
+else
+{
+    logger.quiet 'Stage two tasks go here.'
+}
+

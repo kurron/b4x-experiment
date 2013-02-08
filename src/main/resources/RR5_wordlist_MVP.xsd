@@ -1,0 +1,137 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.transparent.com/xml/BykiList/v1-transitional" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0" targetNamespace="http://www.transparent.com/xml/BykiList/v1-transitional" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:include schemaLocation="./byki_enums.xsd"/>
+  <xs:annotation>
+    <xs:documentation>This schema is designed for MVP version of RR5 and must be backward compatible with CW products.</xs:documentation>
+    <xs:appinfo>
+      <jaxb:globalBindings typesafeEnumMaxMembers="300"/>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:simpleType name="single_line_string">
+    <xs:restriction base="xs:normalizedString"/>
+  </xs:simpleType>
+  <xs:simpleType name="multi_line_string">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:complexType name="LearningFeaturesType">
+    <xs:annotation>
+      <xs:documentation>flags for enabling/disabling specific learning modes</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="is_PreviewIt" type="xs:boolean"/>
+      <xs:element name="is_SR_RecognizeIt" type="xs:boolean"/>
+      <xs:element name="is_Written_RecognizeIt" type="xs:boolean"/>
+      <xs:element name="is_SR_ProduceIt" type="xs:boolean"/>
+      <xs:element name="is_Written_ProduceIt" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BykiAltAnswerType">
+    <xs:annotation>
+      <xs:documentation>Array of Side1 alternative answers</xs:documentation>
+    </xs:annotation>
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="alt_answer" type="single_line_string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BinaryContentType">
+    <xs:annotation>
+      <xs:documentation>If the url= attribute is omitted (default) , or has a value of "embedded", then binary content for the sound (or image) will be stored as the value of this element,  using base64 encoding.  However, if the url= attribute contains a valid URI string, then this URI points to an external resource (holding the binary content), and the body of the parent element should be left empty</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:base64Binary">
+        <xs:attribute name="url" type="single_line_string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="BykiCardType">
+    <xs:annotation>
+      <xs:documentation>card element</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="side1_phrase" type="single_line_string"/>
+      <xs:element name="side2_phrase" type="single_line_string"/>
+      <xs:element name="side1_hint" type="single_line_string" minOccurs="0"/>
+      <xs:element name="side2_hint" type="single_line_string" minOccurs="0"/>
+      <xs:element name="side1_alt_answers" type="BykiAltAnswerType" minOccurs="0"/>
+      <xs:element name="side2_alt_answers" type="BykiAltAnswerType" minOccurs="0"/>
+      <xs:element name="list_position" type="xs:int" minOccurs="0"/>
+      <xs:element name="side2_transliteration" type="single_line_string" minOccurs="0"/>
+      <xs:element name="comment" type="multi_line_string" minOccurs="0"/>
+      <xs:element name="side1_sound" type="BinaryContentType" minOccurs="0"/>
+      <xs:element name="side2_sound" type="BinaryContentType" minOccurs="0"/>
+      <xs:element name="side2_picture" type="BinaryContentType" minOccurs="0"/>
+      <xs:element name="is_video_sound_used" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This element is used by the BEAM application, but not CW1.  It has been included here as an optional element (0..1) in order to support both use cases</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="is_video_auto_played" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This element is used by the BEAM application, but not CW1.  It has been included here as an optional element (0..1) in order to support both use cases</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="uuid" type="single_line_string"/>
+    <xs:attribute name="version" type="xs:unsignedInt"/>
+  </xs:complexType>
+  <xs:complexType name="BykiCardCollectionType">
+    <xs:annotation>
+      <xs:documentation>array of Byki cards</xs:documentation>
+    </xs:annotation>
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="card" type="BykiCardType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BykiListHeadType">
+    <xs:annotation>
+      <xs:documentation>container of list's properties</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="name" type="single_line_string"/>
+      <xs:element name="side1_language_key" type="xs:token">
+        <xs:annotation>
+          <xs:documentation>Unique ID for this list's known language</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="side2_language_key" type="xs:token">
+        <xs:annotation>
+          <xs:documentation>Unique ID for this list's learning language</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="description" type="single_line_string"/>
+      <xs:element name="creator" type="single_line_string">
+        <xs:annotation>
+          <xs:documentation>List creator's copyright string</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="creator_url" type="xs:anyURI"/>
+      <xs:element name="creator_application" type="single_line_string"/>
+      <xs:element name="subject_name" type="single_line_string" minOccurs="0"/>
+      <xs:element name="side1_title" type="single_line_string" minOccurs="0"/>
+      <xs:element name="side2_title" type="single_line_string" minOccurs="0"/>
+      <xs:element name="creation_date" type="xs:dateTime"/>
+      <xs:element name="is_themed" type="xs:boolean"/>
+      <xs:element name="is_government" type="xs:boolean"/>
+      <xs:element name="is_library" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This element is used by the CW1 application, but not BEAM.  It has been included here as an optional element (0..1) in order to support both use cases</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="is_ordered" type="xs:boolean"/>
+      <xs:element name="is_transliteration_shown" type="xs:boolean"/>
+      <xs:element name="LearningFeatures" type="LearningFeaturesType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="BykiListType">
+    <xs:sequence>
+      <xs:element name="head" type="BykiListHeadType">
+        <xs:annotation>
+          <xs:documentation>container of list's properties</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="cards" type="BykiCardCollectionType"/>
+    </xs:sequence>
+    <xs:attribute name="uuid" type="single_line_string" use="required"/>
+    <xs:attribute name="version" type="xs:unsignedInt" use="required"/>
+  </xs:complexType>
+  <xs:element name="list" type="BykiListType"/>
+</xs:schema>
